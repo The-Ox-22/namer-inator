@@ -1,4 +1,4 @@
 - [ ] generate new inators never before seen
 - [ ] take over the tri-state area
 - [ ] take over the world
-- [ ] have a nice cheese snack
+- [x] have a nice cheese snack
