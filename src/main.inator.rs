@@ -45,7 +45,9 @@ async fn main() -> std::io::Result<()> {
 
     let app_state = web::Data::new(AppState { inators });
 
-    log::info!("Starting server at http://127.0.0.1:8080");
+    let host = std::env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
+
+    log::info!("Starting server at http://{}:8080", host);
 
     HttpServer::new(move || {
         App::new()
@@ -54,7 +56,7 @@ async fn main() -> std::io::Result<()> {
             .service(random_inator_pure)
             .service(random_inator_by_season)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((&*host, 8080))?
     .run()
     .await
 }

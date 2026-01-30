@@ -1,12 +1,12 @@
-FROM rust:1.84-slim AS builder
+FROM rust:1.91-slim AS builder
 
 WORKDIR /app
 
 COPY Cargo.toml Cargo.lock ./
-RUN mkdir src && echo 'fn main() {}' > src/main.inator.rs && cargo build --release && rm -rf src
+RUN mkdir src && echo 'fn main() {}' > src/main.inator.rs && cargo build --release && rm -rf src target/release/deps/namer_inator* target/release/namer-inator
 
 COPY src/ src/
-RUN touch src/main.inator.rs && cargo build --release
+RUN cargo build --release
 
 FROM debian:bookworm-slim
 
