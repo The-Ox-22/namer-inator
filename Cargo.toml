@@ -1,0 +1,17 @@
+[package]
+name = "namer-inator"
+version = "1.0.0"
+edition = "2024"
+
+[[bin]]
+name = "namer-inator"
+path = "src/main.inator.rs"
+
+[dependencies]
+actix-web = "4"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+simple_logger = "5.1.0"
+log = "0.4"
+rand = "0.8"
+tokio = { version = "1", features = ["fs"] }
