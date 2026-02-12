@@ -3,6 +3,8 @@ use rand::seq::SliceRandom;
 use serde::Serialize;
 use std::collections::HashMap;
 
+use crate::format::{format_inator, FormatQuery, InatorFormat};
+
 pub struct AppState {
     pub inators: HashMap<String, Vec<String>>,
 }
@@ -18,7 +20,10 @@ fn pick_random(inators: &[String]) -> Option<String> {
 }
 
 #[get("/random-inator")]
-pub async fn random_inator(data: web::Data<AppState>) -> impl Responder {
+pub async fn random_inator(
+    data: web::Data<AppState>,
+    query: web::Query<FormatQuery>,
+) -> impl Responder {
     let all_inators: Vec<&String> = data.inators.values().flatten().collect();
 
     if all_inators.is_empty() {
@@ -29,18 +34,25 @@ pub async fn random_inator(data: web::Data<AppState>) -> impl Responder {
 
     let mut rng = rand::thread_rng();
     let random_inator = all_inators.choose(&mut rng).unwrap();
+    let fmt = query.format.as_ref().unwrap_or(&InatorFormat::Default);
 
     HttpResponse::Ok().json(RandomInatorResponse {
-        inator: (*random_inator).clone(),
+        inator: format_inator(random_inator, fmt),
     })
 }
 
 #[get("/random-inator/pure")]
-pub async fn random_inator_pure(data: web::Data<AppState>) -> impl Responder {
+pub async fn random_inator_pure(
+    data: web::Data<AppState>,
+    query: web::Query<FormatQuery>,
+) -> impl Responder {
+    let fmt = query.format.as_ref().unwrap_or(&InatorFormat::Default);
     match data.inators.get("pure") {
         Some(inators) if !inators.is_empty() => {
             match pick_random(inators) {
-                Some(inator) => HttpResponse::Ok().json(RandomInatorResponse { inator }),
+                Some(inator) => HttpResponse::Ok().json(RandomInatorResponse {
+                    inator: format_inator(&inator, fmt),
+                }),
                 None => HttpResponse::NotFound().json(serde_json::json!({
                     "error": "No pure inators available"
                 })),
@@ -56,13 +68,17 @@ pub async fn random_inator_pure(data: web::Data<AppState>) -> impl Responder {
 pub async fn random_inator_by_season(
     data: web::Data<AppState>,
     path: web::Path<String>,
+    query: web::Query<FormatQuery>,
 ) -> impl Responder {
     let season = path.into_inner();
+    let fmt = query.format.as_ref().unwrap_or(&InatorFormat::Default);
 
     match data.inators.get(&season) {
         Some(inators) if !inators.is_empty() => {
             match pick_random(inators) {
-                Some(inator) => HttpResponse::Ok().json(RandomInatorResponse { inator }),
+                Some(inator) => HttpResponse::Ok().json(RandomInatorResponse {
+                    inator: format_inator(&inator, fmt),
+                }),
                 None => HttpResponse::NotFound().json(serde_json::json!({
                     "error": format!("No inators available for {}", season)
                 })),

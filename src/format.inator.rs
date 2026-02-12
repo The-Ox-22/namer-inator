@@ -1,0 +1,78 @@
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum InatorFormat {
+    #[default]
+    Default,
+    SnakeCase,
+    CamelCase,
+    KebabCase,
+    NoSpaces,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub struct FormatQuery {
+    pub format: Option<InatorFormat>,
+}
+
+/// Apply the requested format to an inator name.
+/// Replaces spaces and hyphens according to the format,
+/// preserving the original name as much as possible.
+pub fn format_inator(name: &str, format: &InatorFormat) -> String {
+    match format {
+        InatorFormat::Default => name.to_string(),
+        InatorFormat::SnakeCase => name.replace([' ', '-'], "_"),
+        InatorFormat::CamelCase => {
+            let mut result = String::with_capacity(name.len());
+            let mut capitalize_next = false;
+            for ch in name.chars() {
+                if ch == ' ' || ch == '-' {
+                    capitalize_next = true;
+                } else if capitalize_next {
+                    result.extend(ch.to_uppercase());
+                    capitalize_next = false;
+                } else {
+                    result.push(ch);
+                }
+            }
+            result
+        }
+        InatorFormat::KebabCase => name.replace(' ', "-"),
+        InatorFormat::NoSpaces => name.replace([' ', '-'], ""),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_preserves_name() {
+        assert_eq!(format_inator("Shrink-inator", &InatorFormat::Default), "Shrink-inator");
+    }
+
+    #[test]
+    fn test_snake_case() {
+        assert_eq!(format_inator("Shrink-inator", &InatorFormat::SnakeCase), "Shrink_inator");
+        assert_eq!(format_inator("De Love-inator", &InatorFormat::SnakeCase), "De_Love_inator");
+    }
+
+    #[test]
+    fn test_camel_case() {
+        assert_eq!(format_inator("Shrink-inator", &InatorFormat::CamelCase), "ShrinkInator");
+        assert_eq!(format_inator("De Love-inator", &InatorFormat::CamelCase), "DeLoveInator");
+    }
+
+    #[test]
+    fn test_kebab_case() {
+        assert_eq!(format_inator("Shrink-inator", &InatorFormat::KebabCase), "Shrink-inator");
+        assert_eq!(format_inator("De Love-inator", &InatorFormat::KebabCase), "De-Love-inator");
+    }
+
+    #[test]
+    fn test_no_spaces() {
+        assert_eq!(format_inator("Shrink-inator", &InatorFormat::NoSpaces), "Shrinkinator");
+        assert_eq!(format_inator("De Love-inator", &InatorFormat::NoSpaces), "DeLoveinator");
+    }
+}

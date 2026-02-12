@@ -2,6 +2,9 @@ use actix_web::{web, App, HttpServer};
 use serde::Deserialize;
 use std::collections::HashMap;
 
+#[path = "format.inator.rs"]
+mod format;
+
 #[path = "requests.inator.rs"]
 mod requests;
 
