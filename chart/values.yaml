@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: jolfosh/namer-inator
-  tag: v1.0.0
+  tag: ""
   pullPolicy: IfNotPresent
 
 service:
