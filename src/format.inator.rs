@@ -70,58 +70,118 @@ mod tests {
 
     #[test]
     fn test_default_preserves_name() {
-        assert_eq!(format_inator("Shrink-inator", &InatorCase::Default), "Shrink-inator");
+        assert_eq!(
+            format_inator("Shrink-inator", &InatorCase::Default),
+            "Shrink-inator"
+        );
     }
 
     #[test]
     fn test_snake_case() {
-        assert_eq!(format_inator("Shrink-inator", &InatorCase::Snake), "Shrink_inator");
-        assert_eq!(format_inator("De Love-inator", &InatorCase::Snake), "De_Love_inator");
+        assert_eq!(
+            format_inator("Shrink-inator", &InatorCase::Snake),
+            "Shrink_inator"
+        );
+        assert_eq!(
+            format_inator("De Love-inator", &InatorCase::Snake),
+            "De_Love_inator"
+        );
     }
 
     #[test]
     fn test_camel_case() {
-        assert_eq!(format_inator("Shrink-inator", &InatorCase::Camel), "ShrinkInator");
-        assert_eq!(format_inator("De Love-inator", &InatorCase::Camel), "DeLoveInator");
+        assert_eq!(
+            format_inator("Shrink-inator", &InatorCase::Camel),
+            "ShrinkInator"
+        );
+        assert_eq!(
+            format_inator("De Love-inator", &InatorCase::Camel),
+            "DeLoveInator"
+        );
     }
 
     #[test]
     fn test_kebab_case() {
-        assert_eq!(format_inator("Shrink-inator", &InatorCase::Kebab), "Shrink-inator");
-        assert_eq!(format_inator("De Love-inator", &InatorCase::Kebab), "De-Love-inator");
+        assert_eq!(
+            format_inator("Shrink-inator", &InatorCase::Kebab),
+            "Shrink-inator"
+        );
+        assert_eq!(
+            format_inator("De Love-inator", &InatorCase::Kebab),
+            "De-Love-inator"
+        );
     }
 
     #[test]
     fn test_no_spaces() {
-        assert_eq!(format_inator("Shrink-inator", &InatorCase::NoSpaces), "Shrinkinator");
-        assert_eq!(format_inator("De Love-inator", &InatorCase::NoSpaces), "DeLoveinator");
+        assert_eq!(
+            format_inator("Shrink-inator", &InatorCase::NoSpaces),
+            "Shrinkinator"
+        );
+        assert_eq!(
+            format_inator("De Love-inator", &InatorCase::NoSpaces),
+            "DeLoveinator"
+        );
     }
 
     #[test]
     fn test_lower() {
-        assert_eq!(format_inator("Shrink-inator", &InatorCase::Lower), "shrink-inator");
-        assert_eq!(format_inator("De Love-inator", &InatorCase::Lower), "de love-inator");
+        assert_eq!(
+            format_inator("Shrink-inator", &InatorCase::Lower),
+            "shrink-inator"
+        );
+        assert_eq!(
+            format_inator("De Love-inator", &InatorCase::Lower),
+            "de love-inator"
+        );
     }
 
     #[test]
     fn test_upper() {
-        assert_eq!(format_inator("Shrink-inator", &InatorCase::Upper), "SHRINK-INATOR");
-        assert_eq!(format_inator("De Love-inator", &InatorCase::Upper), "DE LOVE-INATOR");
+        assert_eq!(
+            format_inator("Shrink-inator", &InatorCase::Upper),
+            "SHRINK-INATOR"
+        );
+        assert_eq!(
+            format_inator("De Love-inator", &InatorCase::Upper),
+            "DE LOVE-INATOR"
+        );
     }
 
     #[test]
     fn test_strip_special_alone() {
-        let query = FormatQuery { case: None, strip_special: true };
-        assert_eq!(apply_format("Smell (good)-inator", &query), "Smell good-inator");
-        assert_eq!(apply_format("What's-this?-inator", &query), "Whats-this-inator");
+        let query = FormatQuery {
+            case: None,
+            strip_special: true,
+        };
+        assert_eq!(
+            apply_format("Smell (good)-inator", &query),
+            "Smell good-inator"
+        );
+        assert_eq!(
+            apply_format("What's-this?-inator", &query),
+            "Whats-this-inator"
+        );
     }
 
     #[test]
     fn test_strip_special_with_format() {
-        let query = FormatQuery { case: Some(InatorCase::Snake), strip_special: true };
-        assert_eq!(apply_format("Smell (good)-inator", &query), "Smell_good_inator");
+        let query = FormatQuery {
+            case: Some(InatorCase::Snake),
+            strip_special: true,
+        };
+        assert_eq!(
+            apply_format("Smell (good)-inator", &query),
+            "Smell_good_inator"
+        );
 
-        let query = FormatQuery { case: Some(InatorCase::Camel), strip_special: true };
-        assert_eq!(apply_format("Smell (good)-inator", &query), "SmellGoodInator");
+        let query = FormatQuery {
+            case: Some(InatorCase::Camel),
+            strip_special: true,
+        };
+        assert_eq!(
+            apply_format("Smell (good)-inator", &query),
+            "SmellGoodInator"
+        );
     }
 }

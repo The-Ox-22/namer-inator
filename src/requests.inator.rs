@@ -1,9 +1,9 @@
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{HttpResponse, Responder, get, web};
 use rand::seq::SliceRandom;
 use serde::Serialize;
 use std::collections::HashMap;
 
-use crate::format::{apply_format, FormatQuery};
+use crate::format::{FormatQuery, apply_format};
 
 pub struct AppState {
     pub inators: HashMap<String, Vec<String>>,
@@ -46,16 +46,14 @@ pub async fn random_inator_pure(
     query: web::Query<FormatQuery>,
 ) -> impl Responder {
     match data.inators.get("pure") {
-        Some(inators) if !inators.is_empty() => {
-            match pick_random(inators) {
-                Some(inator) => HttpResponse::Ok().json(RandomInatorResponse {
-                    inator: apply_format(&inator, &query),
-                }),
-                None => HttpResponse::NotFound().json(serde_json::json!({
-                    "error": "No pure inators available"
-                })),
-            }
-        }
+        Some(inators) if !inators.is_empty() => match pick_random(inators) {
+            Some(inator) => HttpResponse::Ok().json(RandomInatorResponse {
+                inator: apply_format(&inator, &query),
+            }),
+            None => HttpResponse::NotFound().json(serde_json::json!({
+                "error": "No pure inators available"
+            })),
+        },
         _ => HttpResponse::NotFound().json(serde_json::json!({
             "error": "No pure inators available"
         })),
@@ -71,16 +69,14 @@ pub async fn random_inator_by_season(
     let season = path.into_inner();
 
     match data.inators.get(&season) {
-        Some(inators) if !inators.is_empty() => {
-            match pick_random(inators) {
-                Some(inator) => HttpResponse::Ok().json(RandomInatorResponse {
-                    inator: apply_format(&inator, &query),
-                }),
-                None => HttpResponse::NotFound().json(serde_json::json!({
-                    "error": format!("No inators available for {}", season)
-                })),
-            }
-        }
+        Some(inators) if !inators.is_empty() => match pick_random(inators) {
+            Some(inator) => HttpResponse::Ok().json(RandomInatorResponse {
+                inator: apply_format(&inator, &query),
+            }),
+            None => HttpResponse::NotFound().json(serde_json::json!({
+                "error": format!("No inators available for {}", season)
+            })),
+        },
         _ => {
             let valid_seasons: Vec<&String> = data.inators.keys().collect();
             HttpResponse::NotFound().json(serde_json::json!({
