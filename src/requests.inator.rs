@@ -3,7 +3,7 @@ use rand::seq::SliceRandom;
 use serde::Serialize;
 use std::collections::HashMap;
 
-use crate::format::{format_inator, FormatQuery, InatorFormat};
+use crate::format::{apply_format, FormatQuery};
 
 pub struct AppState {
     pub inators: HashMap<String, Vec<String>>,
@@ -34,10 +34,9 @@ pub async fn random_inator(
 
     let mut rng = rand::thread_rng();
     let random_inator = all_inators.choose(&mut rng).unwrap();
-    let fmt = query.format.as_ref().unwrap_or(&InatorFormat::Default);
 
     HttpResponse::Ok().json(RandomInatorResponse {
-        inator: format_inator(random_inator, fmt),
+        inator: apply_format(random_inator, &query),
     })
 }
 
@@ -46,12 +45,11 @@ pub async fn random_inator_pure(
     data: web::Data<AppState>,
     query: web::Query<FormatQuery>,
 ) -> impl Responder {
-    let fmt = query.format.as_ref().unwrap_or(&InatorFormat::Default);
     match data.inators.get("pure") {
         Some(inators) if !inators.is_empty() => {
             match pick_random(inators) {
                 Some(inator) => HttpResponse::Ok().json(RandomInatorResponse {
-                    inator: format_inator(&inator, fmt),
+                    inator: apply_format(&inator, &query),
                 }),
                 None => HttpResponse::NotFound().json(serde_json::json!({
                     "error": "No pure inators available"
@@ -71,13 +69,12 @@ pub async fn random_inator_by_season(
     query: web::Query<FormatQuery>,
 ) -> impl Responder {
     let season = path.into_inner();
-    let fmt = query.format.as_ref().unwrap_or(&InatorFormat::Default);
 
     match data.inators.get(&season) {
         Some(inators) if !inators.is_empty() => {
             match pick_random(inators) {
                 Some(inator) => HttpResponse::Ok().json(RandomInatorResponse {
-                    inator: format_inator(&inator, fmt),
+                    inator: apply_format(&inator, &query),
                 }),
                 None => HttpResponse::NotFound().json(serde_json::json!({
                     "error": format!("No inators available for {}", season)

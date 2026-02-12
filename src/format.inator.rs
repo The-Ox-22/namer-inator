@@ -14,12 +14,29 @@ pub enum InatorFormat {
 #[derive(Debug, Deserialize, Default)]
 pub struct FormatQuery {
     pub format: Option<InatorFormat>,
+    #[serde(default)]
+    pub strip_special: bool,
 }
 
-/// Apply the requested format to an inator name.
+fn strip_special_chars(name: &str) -> String {
+    name.chars()
+        .filter(|ch| ch.is_alphanumeric() || ch.is_whitespace() || *ch == '-')
+        .collect()
+}
+
+/// Apply the requested formatting to an inator name.
 /// Replaces spaces and hyphens according to the format,
 /// preserving the original name as much as possible.
-pub fn format_inator(name: &str, format: &InatorFormat) -> String {
+pub fn apply_format(name: &str, query: &FormatQuery) -> String {
+    let name = if query.strip_special {
+        strip_special_chars(name)
+    } else {
+        name.to_string()
+    };
+    format_inator(&name, query.format.as_ref().unwrap_or(&InatorFormat::Default))
+}
+
+fn format_inator(name: &str, format: &InatorFormat) -> String {
     match format {
         InatorFormat::Default => name.to_string(),
         InatorFormat::SnakeCase => name.replace([' ', '-'], "_"),
@@ -74,5 +91,21 @@ mod tests {
     fn test_no_spaces() {
         assert_eq!(format_inator("Shrink-inator", &InatorFormat::NoSpaces), "Shrinkinator");
         assert_eq!(format_inator("De Love-inator", &InatorFormat::NoSpaces), "DeLoveinator");
+    }
+
+    #[test]
+    fn test_strip_special_alone() {
+        let query = FormatQuery { format: None, strip_special: true };
+        assert_eq!(apply_format("Smell (good)-inator", &query), "Smell good-inator");
+        assert_eq!(apply_format("What's-this?-inator", &query), "Whats-this-inator");
+    }
+
+    #[test]
+    fn test_strip_special_with_format() {
+        let query = FormatQuery { format: Some(InatorFormat::SnakeCase), strip_special: true };
+        assert_eq!(apply_format("Smell (good)-inator", &query), "Smell_good_inator");
+
+        let query = FormatQuery { format: Some(InatorFormat::CamelCase), strip_special: true };
+        assert_eq!(apply_format("Smell (good)-inator", &query), "SmellGoodInator");
     }
 }
