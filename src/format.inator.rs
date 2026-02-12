@@ -9,6 +9,8 @@ pub enum InatorFormat {
     CamelCase,
     KebabCase,
     NoSpaces,
+    Lower,
+    Upper,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -57,6 +59,8 @@ fn format_inator(name: &str, format: &InatorFormat) -> String {
         }
         InatorFormat::KebabCase => name.replace(' ', "-"),
         InatorFormat::NoSpaces => name.replace([' ', '-'], ""),
+        InatorFormat::Lower => name.to_lowercase(),
+        InatorFormat::Upper => name.to_uppercase(),
     }
 }
 
@@ -91,6 +95,18 @@ mod tests {
     fn test_no_spaces() {
         assert_eq!(format_inator("Shrink-inator", &InatorFormat::NoSpaces), "Shrinkinator");
         assert_eq!(format_inator("De Love-inator", &InatorFormat::NoSpaces), "DeLoveinator");
+    }
+
+    #[test]
+    fn test_lower() {
+        assert_eq!(format_inator("Shrink-inator", &InatorFormat::Lower), "shrink-inator");
+        assert_eq!(format_inator("De Love-inator", &InatorFormat::Lower), "de love-inator");
+    }
+
+    #[test]
+    fn test_upper() {
+        assert_eq!(format_inator("Shrink-inator", &InatorFormat::Upper), "SHRINK-INATOR");
+        assert_eq!(format_inator("De Love-inator", &InatorFormat::Upper), "DE LOVE-INATOR");
     }
 
     #[test]
